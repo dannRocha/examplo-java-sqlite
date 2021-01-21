@@ -5,6 +5,123 @@ import java.sql.Statement;
 import java.util.List; 
 import java.util.ArrayList; 
 
+
+public class Main {
+
+	static Connection conn = null;
+	
+	public static void main(String[] args) {
+		
+		connectDB("company");
+				
+		String create = "create table if not exists COMPANY " +
+			         "(ID int primary key not null, " +
+			         " NAME text not null, " + 
+			         " AGE int not null, " + 
+			         " ADDRESS char(50), " + 
+			         " SALARY real)";
+			
+		String[] inserts = {
+			"insert into COMPANY (ID,NAME,AGE,ADDRESS,SALARY) values (1, 'Paul', 32, 'California', 20000.00 );", 
+			"insert into COMPANY (ID,NAME,AGE,ADDRESS,SALARY) values (2, 'Allen', 25, 'Texas', 15000.00 );", 
+			"insert into COMPANY (ID,NAME,AGE,ADDRESS,SALARY) values (3, 'Teddy', 23, 'New York', 20000.00 );" 
+		};
+		
+		String select = "select * from COMPANY";
+
+		executeSQL(create);
+
+		if(getEmployees(select).size() == 0) {
+			for(var insert : inserts)
+				executeSQL(insert);
+		}
+
+		var employees = getEmployees(select);
+
+		printEmployees(employees);
+		
+		closeDB(); 
+	}
+
+	public static void connectDB( String name ) {
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:" + name + ".db");	
+			//conn.setAutoCommit(false);
+		}
+		catch(Exception e) {
+			System.err.println(Error.message(e));
+			System.exit(0);
+		}
+	}
+
+	public static void executeSQL(String sql) {
+		try {
+			Statement stmt = conn.createStatement();
+			stmt.executeUpdate(sql);
+			//conn.commit();
+			stmt.close();
+		}
+		catch(Exception e) {
+			System.err.println(Error.message(e));
+			System.exit(0);			
+		}
+	}
+
+	public static void closeDB() {
+		try {
+			conn.close();
+		}
+		catch(Exception e) {
+			System.err.println(Error.message(e));
+			System.exit(0);			
+		}
+	}
+
+	public static List<Employee> getEmployees(String sql) {
+	
+		List<Employee> employees  = new ArrayList<Employee>(); 
+			
+		try {
+			
+			Statement stmt = conn.createStatement();
+			ResultSet response = stmt.executeQuery(sql);
+	
+				
+			while ( response.next() ) {
+				employees.add(
+			    		new Employee(
+			    			response.getInt("id"), 
+			    			response.getString("name"),
+			    			response.getInt("age"),
+			    			response.getString("address"),
+			    			response.getFloat("salary")
+			    		)
+			    	);
+			 }
+			stmt.close();
+		}
+		catch(Exception e) {
+			System.err.println(Error.message(e));
+			System.exit(0);			
+		}
+	
+		return employees;
+	}
+
+	public static void printEmployees(List<Employee> employees) {
+
+		if(employees.size() != 0)
+			System.out.println(":=====================:"); 
+
+		for(var employee : employees) {
+			System.out.println(employee);
+			System.out.println(":=====================:"); 
+		}
+	}
+}
+
+
 class Employee {
 
 	private int id;
@@ -47,124 +164,8 @@ class Employee {
 }
 
 class Error {
-	static public String message(Exception e) {
+	public static String message(Exception e) {
 		return e.getClass().getName() + ": " + e.getMessage();
 	}
 }
 
-
-public class Main {
-
-	static Connection conn = null;
-
-	public static void connectDB( String name ) {
-		try {
-			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:" + name + ".db");	
-			//conn.setAutoCommit(false);
-		}
-		catch(Exception e) {
-			System.err.println(Error.message(e));
-			System.exit(0);
-		}
-	}
-
-	public static void executeSQL(String sql) {
-		try {
-			Statement stmt = conn.createStatement();
-			stmt.executeUpdate(sql);
-			//conn.commit();
-			stmt.close();
-		}
-		catch(Exception e) {
-			System.err.println(Error.message(e));
-			System.exit(0);			
-		}
-	}
-
-	public static void closeDB() {
-		try {
-			conn.close();
-		}
-		catch(Exception e) {
-			System.err.println(Error.message(e));
-			System.exit(0);			
-		}
-	}
-
-	public static List<Employer> getEmployees(String sql) {
-	
-		List<Employer> employers  = new ArrayList<Employer>(); 
-			
-		try {
-			
-			Statement stmt = conn.createStatement();
-			 ResultSet response = stmt.executeQuery(sql);
-	
-				
-			 while ( response.next() ) {
-			    employers.add(
-			    		new Employer(
-			    			response.getInt("id"), 
-			    			response.getString("name"),
-			    			response.getInt("age"),
-			    			response.getString("address"),
-			    			response.getFloat("salary")
-			    		)
-			    	);
-			 }
-			 stmt.close();
-		}
-		catch(Exception e) {
-			System.err.println(Error.message(e));
-			System.exit(0);			
-		}
-	
-		return employers;
-	}
-
-	public static void printEmployees(List<Employer> employers) {
-
-		if(employers.size() != 0)
-			System.out.println(":=====================:"); 
-
-		for(var employer : employers) {
-			System.out.println(employer);
-			System.out.println(":=====================:"); 
-		}
-	}
-	
-	public static void main(String[] args) {
-		
-		connectDB("company");
-				
-		String create = "create table if not exists COMPANY " +
-			         "(ID int primary key not null, " +
-			         " NAME text not null, " + 
-			         " AGE int not null, " + 
-			         " ADDRESS char(50), " + 
-			         " SALARY real)";
-
-		executeSQL(create);
-			
-		String[] inserts = {
-			"insert into COMPANY (ID,NAME,AGE,ADDRESS,SALARY) values (1, 'Paul', 32, 'California', 20000.00 );", 
-			"insert into COMPANY (ID,NAME,AGE,ADDRESS,SALARY) values (2, 'Allen', 25, 'Texas', 15000.00 );", 
-			"insert into COMPANY (ID,NAME,AGE,ADDRESS,SALARY) values (3, 'Teddy', 23, 'New York', 20000.00 );" 
-		};
-		
-		String update = "update COMPANY set SALARY = 1250.00 where ID = 2";
-		String select = "select * from COMPANY";
-
-		if(getEmployees(select).size() == 0) {
-			for(var insert : inserts)
-				executeSQL(insert);
-		}
-
-		var employees = getEmployees(select);
-
-		printEmployees(employees);
-		
-		closeDB(); 
-	}
-}

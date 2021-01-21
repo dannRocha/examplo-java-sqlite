@@ -5,7 +5,7 @@ import java.sql.Statement;
 import java.util.List; 
 import java.util.ArrayList; 
 
-class Employer {
+class Employee {
 
 	private int id;
 	private int age;
@@ -13,14 +13,14 @@ class Employer {
 	private String address;
 	private double salary;
 	
-    public Employer() {}
-    public Employer(int id, String name, int age, String address, double salary) {
-    	this.setId(id);
-    	this.setAge(age);
-    	this.setName(name);
-    	this.setAddress(address);
-    	this.setSalary(salary);
-    }
+	public Employee() {}
+		public Employee(int id, String name, int age, String address, double salary) {
+		this.setId(id);
+		this.setAge(age);
+		this.setName(name);
+		this.setAddress(address);
+		this.setSalary(salary);
+	}
         
 
 	public int getId() { return this.id; }
@@ -92,7 +92,7 @@ public class Main {
 		}
 	}
 
-	public static List<Employer> getEmployers(String sql) {
+	public static List<Employer> getEmployees(String sql) {
 	
 		List<Employer> employers  = new ArrayList<Employer>(); 
 			
@@ -123,7 +123,7 @@ public class Main {
 		return employers;
 	}
 
-	public static void printEmployers(List<Employer> employers) {
+	public static void printEmployees(List<Employer> employers) {
 
 		if(employers.size() != 0)
 			System.out.println(":=====================:"); 
@@ -156,14 +156,14 @@ public class Main {
 		String update = "update COMPANY set SALARY = 1250.00 where ID = 2";
 		String select = "select * from COMPANY";
 
-		if(getEmployers(select).size() == 0) {
+		if(getEmployees(select).size() == 0) {
 			for(var insert : inserts)
 				executeSQL(insert);
 		}
 
-		var employers = getEmployers(select);
+		var employees = getEmployees(select);
 
-		printEmployers(employers);
+		printEmployees(employees);
 		
 		closeDB(); 
 	}
